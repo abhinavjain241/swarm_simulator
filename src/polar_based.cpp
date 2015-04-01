@@ -1,24 +1,22 @@
-/*Copyright [2015] Abhinav Jain [Coordinated Exploration with Multi-Robot Systems, IIT-KGP] */
-
-#include <math.h>
-#include <gazebo_msgs/GetModelState.h>
-#include <gazebo_msgs/GetWorldProperties.h>
-#include <string>
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "std_msgs/String.h"
 #include "gazebo_msgs/ModelState.h"
 
-#define des_x -12
-#define des_y -12
-#define des_o 0
-#define cor_x (getmodelstate.response.pose.position.x - des_x)
-#define cor_y (getmodelstate.response.pose.position.y - des_y)
-#define or_x getmodelstate.response.pose.orientation.x
-#define or_y getmodelstate.response.pose.orientation.y
-#define or_z getmodelstate.response.pose.orientation.z
-#define or_w getmodelstate.response.pose.orientation.w
-#define cor_o normalizeangle((2*acos(or_w)-des_o))
+#include <math.h>
+#include <gazebo_msgs/GetModelState.h>
+#include <gazebo_msgs/GetWorldProperties.h>
+
+#include <string>
+
+#define Des_O 0
+#define Cor_X (getmodelstate.response.pose.position.x - des_x)
+#define Cor_Y (getmodelstate.response.pose.position.y - des_y)
+#define Or_X getmodelstate.response.pose.orientation.x
+#define Or_Y getmodelstate.response.pose.orientation.y
+#define Or_Z getmodelstate.response.pose.orientation.z
+#define Or_W getmodelstate.response.pose.orientation.w
+#define cor_o normalizeangle((2*acos(Or_W)-Des_O))
 #define MIN_BOT_SPEED 1
 #define MAX_BOT_SPEED 10
 #define MIN_BOT_ANG 0.3
@@ -26,15 +24,15 @@
 #define BOT_POINT_THRESH 0.1
 #define lambda 2
 #define beta 0.7
-#define k1 0.5
-#define k2 4
-#define k3 20
+#define k1 2
+#define k2 1
+#define k3 1
 #define pi 3.14159
 #define ticksToCms 1.107  // Approximate
 
 /**
  * This tutorial demonstrates to move bot along a smooth trajactory between 2 points in Gazebo.
- * Initial point (-12,-12,0) --> Final Position (0,0,0)
+ * Initial point (Taken by the user) --> Final Position (0,0,0)
  */
 
 /* Class to convert xyz coordinates to P,Y,D values and give v(translational velocity) and w(omega) */
@@ -89,12 +87,14 @@ double get_vc() {return v_curve;}
 
 
 int main(int argc, char **argv) {
+  int des_x, des_y;
   ros::init(argc, argv, "SwarmSimu");
   ros::NodeHandle n;
   ros::Publisher vel_pub_0 = n.advertise<geometry_msgs::Twist>("/swarmbot0/cmd_vel", 1);
   ros::Rate loop_rate(20);
   ros::ServiceClient serv_client = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-
+  ROS_INFO("Enter values for des_x and des_y:");  
+  scanf("%d %d",&des_x,&des_y);  // Take in values for Initial Point
   gazebo_msgs::GetModelState getmodelstate;
   gazebo_msgs::ModelState modelstate;
   std::string s = "swarmbot0";
@@ -105,9 +105,9 @@ int main(int argc, char **argv) {
     geometry_msgs::Twist cmd_vel;
     getmodelstate.request.model_name = s;
     serv_client.call(getmodelstate);
-    pol_c.set_values(cor_x, cor_y, cor_o);  // Velocities are set
+    pol_c.set_values(Cor_X, Cor_Y, cor_o);  // Velocities are set
     if (count%20 == 0)  // To decrease the number of printed statements
-    ROS_INFO("(%lf,%lf,%lf) (%lf,%lf,%lf) ", cor_x, cor_y, cor_o, pol_c.get_p(), pol_c.get_y(), pol_c.get_d());
+    ROS_INFO("(%lf,%lf,%lf) (%lf,%lf,%lf) ", Cor_X, Cor_Y, cor_o, pol_c.get_p(), pol_c.get_y(), pol_c.get_d());
     if (((pol_c.get_p() > 0.5 || cor_o > 0.1) || count < 50)) {
     pol_c.vel_profile();  // For Velocity Profiling
     if (count%20 == 0)  // To decrease the no. of prints
