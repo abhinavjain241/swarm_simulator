@@ -18,6 +18,8 @@ find_package(catkin REQUIRED sensor_msgs cv_bridge roscpp std_msgs image_transpo
 find_package(Boost REQUIRED COMPONENTS system)
 include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
 
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
@@ -111,6 +113,10 @@ set(POLAR_BASED
   src/polar_based.cpp
 )
 
+set(ASTAR
+  src/astar.cpp
+)
+
 ## Declare a cpp executable
 add_executable(swarm_simulator_node ${SWARM_SIMU})
 add_dependencies(swarm_simulator_node ${PROJECT_NAME}_generate_messages_cpp)
@@ -120,10 +126,13 @@ target_link_libraries(swarm_simulator_node  ${catkin_LIBRARIES} ${GAZEBO_LIBRARI
 ## Declare a cpp executable
 add_executable(single_bot_node ${SINGLE_BOT})
 add_executable(polar_based ${POLAR_BASED})
+add_executable(astar ${ASTAR})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(single_bot_node  ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 target_link_libraries(polar_based  ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+target_link_libraries(astar  ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
 #############
 ## Install ##
 #############
