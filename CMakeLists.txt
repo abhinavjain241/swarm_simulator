@@ -107,6 +107,10 @@ set(SINGLE_BOT
 	src/swarm_bot.cpp
 )
 
+set(POLAR_BASED
+  src/polar_based.cpp
+)
+
 ## Declare a cpp executable
 add_executable(swarm_simulator_node ${SWARM_SIMU})
 add_dependencies(swarm_simulator_node ${PROJECT_NAME}_generate_messages_cpp)
@@ -115,9 +119,11 @@ target_link_libraries(swarm_simulator_node  ${catkin_LIBRARIES} ${GAZEBO_LIBRARI
 
 ## Declare a cpp executable
 add_executable(single_bot_node ${SINGLE_BOT})
+add_executable(polar_based ${POLAR_BASED})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(single_bot_node  ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+target_link_libraries(polar_based  ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 #############
 ## Install ##
 #############
